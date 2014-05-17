@@ -4,24 +4,25 @@
   "description": "Plugin to cache Mongoose MongoDB query results in Redis",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha"
   },
   "license": "BSD",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "redis": "~0.8.2",
-    "underscore": "~1.4.4"
+    "redis": "0.10.x",
+    "hiredis": "~> 0.1.16",
+    "underscore": "1.5.x"
   },
   "devDependencies": {
-    "mocha": "~1.8.1",
-    "async": "~0.2.5",
-    "mongoose": "~3.5.7"
+    "mocha": "1.18.x",
+    "async": "0.9.x",
+    "mongoose": "3.8.x"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/conancat/mongoose-redis-cache.git"
+    "url": "https://github.com/endSly/mongoose-redis-cache.git"
   },
   "keywords": [
     "mongodb",
