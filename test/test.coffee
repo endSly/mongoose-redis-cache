@@ -22,7 +22,7 @@ mongoose = require "mongoose"
 {Schema} = mongoose 
 async = require "async"
 _ = require "underscore"
-mongooseRedisCache = require "../index"
+mongooseRedisCache = require "../src"
 
 # Some test variables, feel free to change this to play around
 itemsCount = 100
@@ -62,8 +62,8 @@ maxQueriesCount = mockNames.length
 # BEGIN SETTING UP
 
 # Setup Mongoose as usual
-mongoose.connect("mongodb://test:abcd1234@ds037987.mongolab.com:37987/mongoose-redis-test")
-# mongoose.connect("mongodb://localhost/mongoose-redis-test")
+# mongoose.connect("mongodb://test:abcd1234@ds037987.mongolab.com:37987/mongoose-redis-test")
+mongoose.connect("mongodb://localhost/mongoose-redis-test")
 
 # Setup test item schema
 TestItemSchema = new Schema 
@@ -212,11 +212,7 @@ describe "Mongoose queries without caching", ->
 describe "Mongoose queries with caching", ->
   before ->
     # Setup mongooseRedisCache
-    mongooseRedisCache mongoose,
-      host: "proxy.openredis.com"
-      port: 11406
-      pass: "BNX8dYfmpAjm52b8dtBcB0lPij4dbZT0PmNurfNCNHmGGPy7Zq8SBR6ejezls11r"
-    , (err) ->
+    mongooseRedisCache mongoose, (err) ->
       console.log """
         \n--------------------------------
         Test query with Redis caching
