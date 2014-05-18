@@ -19,9 +19,9 @@
     if (pass) {
       client.auth(pass, callback);
     }
-    mongoose.Query.prototype._uncachedSearch = mongoose.Query.prototype.exec;
+    mongoose.Query.prototype._uncachedExec = mongoose.Query.prototype.exec;
     mongoose.Query.prototype.exec = function(callback) {
-      var cb, expires, fields, key, model, query, schemaOptions, self;
+      var expires, fields, key, model, query, schemaOptions, self;
       self = this;
       model = this.model;
       query = this._conditions;
@@ -29,32 +29,30 @@
       fields = _.clone(this._fields);
       schemaOptions = model.schema.options;
       expires = schemaOptions.expires || 60;
-      if (!(schemaOptions.redisCache && !options.nocache && options.lean)) {
-        return mongoose.Query.prototype._uncachedSearch.apply(self, arguments);
+      if (!schemaOptions.redisCache || options.nocache) {
+        return mongoose.Query.prototype._uncachedExec.apply(self, arguments);
       }
       delete options.nocache;
-      key = JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields);
-      cb = function(err, result) {
+      key = this.model.modelName + JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields || '*');
+      client.get(key, function(err, result) {
         var docs;
         if (err) {
           return callback(err);
         }
-        if (!result) {
-          return mongoose.Query.prototype._uncachedSearch.call(self, function(err, docs) {
-            var str;
-            if (err) {
-              return callback(err);
-            }
-            str = JSON.stringify(docs);
-            client.setex(key, expires, str);
-            return callback(null, docs);
-          });
-        } else {
+        if (result) {
           docs = JSON.parse(result);
           return callback(null, docs);
         }
-      };
-      client.get(key, cb);
+        return mongoose.Query.prototype._uncachedExec.call(self, function(err, docs) {
+          var str;
+          if (err) {
+            return callback(err);
+          }
+          str = JSON.stringify(docs);
+          client.setex(key, expires, str);
+          return callback(null, docs);
+        });
+      });
       return this;
     };
   };
