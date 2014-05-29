@@ -7,17 +7,21 @@
   _ = require("underscore");
 
   mongooseRedisCache = function(mongoose, options, callback) {
-    var client, host, pass, port, redisOptions;
+    var client, database, host, pass, port, redisOptions;
     if (options == null) {
       options = {};
     }
     host = options.host || "";
     port = options.port || "";
     pass = options.pass;
+    database = options.database;
     redisOptions = options.options || {};
     mongoose.redisClient = client = redis.createClient(port, host, redisOptions);
     if (pass) {
       client.auth(pass, callback);
+    }
+    if (database) {
+      client.select(database);
     }
     mongoose.Query.prototype._uncachedExec = mongoose.Query.prototype.exec;
     mongoose.Query.prototype.exec = function(callback) {

@@ -19,11 +19,13 @@ mongooseRedisCache = (mongoose, options, callback) ->
   host = options.host || ""
   port = options.port || ""
   pass = options.pass
+  database = options.database
   redisOptions = options.options || {}
 
   mongoose.redisClient = client = redis.createClient port, host, redisOptions
 
   client.auth(pass, callback) if pass
+  client.select(database) if database
 
   # Cache original exec function so that 
   # we can use it later
